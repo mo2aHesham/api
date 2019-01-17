@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+    // return [$request->user()->email,$request->user()->name,$request->user()->password
+    // ];
 });
 Route::apiResource('/products','ProductController');
 Route::group(['prefix'=>'products'],function(){
