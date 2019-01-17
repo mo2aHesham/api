@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Model\Product;
 use Illuminate\Http\Request;
+use App\Http\Requests\productRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\Product\ProductCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except('index','show');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -36,9 +42,28 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(productRequest $request)
+    //productRequest because i make validation there
     {
-        //
+        $product =  Product::forceCreate(request()->all());
+        //return $product;
+        return response([
+            'data' =>new ProductResource($product)
+            ],Response::HTTP_CREATED);
+        // another way to store data in database
+
+
+
+        /*$product = new Product;
+        $product->name= $request->name;
+        $product->description= $request->description;
+        $product->price= $request->price;
+        $product->stock= $request->stock;
+        $product->discount= $request->discount;
+        $product->save();
+        return $request->all();*/
+
+
     }
 
     /**
@@ -73,7 +98,14 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        //return $request->all(); //return the new data
+        //return $product; // return all request contain id,created_at,updated_at
+        $product->update(request()->all()); // to updated it in database
+
+        //return new ProductResource($product); // to see data in api
+         return response([
+            'data' =>new ProductResource($product)
+            ],Response::HTTP_CREATED);
     }
 
     /**
@@ -84,6 +116,12 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return response(null,Response::HTTP_NO_CONTENT);
+
     }
+     /*public function destroy($id)
+    {
+        return Product::find($id);
+    }*/
 }
